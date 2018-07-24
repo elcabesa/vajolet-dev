@@ -32,8 +32,37 @@
 #include "command.h"
 #include "syzygy/tbprobe.h"
 #include "bitops.h"
+#include "map"
 
 
+
+class _MGstat{
+private:
+	struct ss
+	{
+		unsigned long long betaCut;
+		unsigned long long tested;
+	};
+	std::map<unsigned int,ss> _stat;
+	
+public:
+	void tested( Movegen::eStagedGeneratorState st ){
+		_stat[st].tested++;
+	}
+	
+	void betaCut( Movegen::eStagedGeneratorState st ){
+		_stat[st].betaCut++;
+	}
+	
+	void print()
+	{
+		for( auto it : _stat)
+		{
+			std::cout<< it.first <<": "<<it.second.betaCut<<"/"<<it.second.tested<<" ("<< it.second.betaCut*100.0/it.second.tested <<")"<<std::endl;
+		}
+	}
+	
+}MGstat;
 
 #ifdef DEBUG_EVAL_SIMMETRY
 	Position ppp;
@@ -470,6 +499,8 @@ startThinkResult Search::startThinking(int depth, Score alpha, Score beta)
 	ret.alpha = alpha;
 	ret.beta = beta;
 	ret.Res = rootMoves[0].previousScore;
+	
+	//MGstat.print();
 
 
 	return ret;
@@ -956,6 +987,7 @@ template<Search::nodeType type> Score Search::alphaBeta(unsigned int ply, int de
 
 	while (bestScore <beta  && ( m = mg.getNextMove() ) != Movegen::NOMOVE)
 	{
+		//MGstat.tested(mg.getStage());
 
 		assert(m.packed);
 		if(m == excludedMove)
@@ -1290,6 +1322,8 @@ template<Search::nodeType type> Score Search::alphaBeta(unsigned int ply, int de
 	if (bestScore >= beta
 		&& !inCheck)
 	{
+		//MGstat.betaCut(mg.getStage());
+
 		if (!pos.isCaptureMoveOrPromotion(bestMove))
 		{
 			saveKillers(ply,bestMove);
@@ -1525,6 +1559,7 @@ template<Search::nodeType type> Score Search::qsearch(unsigned int ply, int dept
 	const Position::state& st = pos.getActualState();
 	while (/*bestScore < beta  &&  */(m = mg.getNextMove()) != Movegen::NOMOVE)
 	{
+		//MGstat.tested(mg.getStage());
 		assert(alpha < beta);
 		assert(beta <= SCORE_INFINITE);
 		assert(alpha >= -SCORE_INFINITE);
@@ -1623,6 +1658,7 @@ template<Search::nodeType type> Score Search::qsearch(unsigned int ply, int dept
 				}
 				if( bestScore >= beta)
 				{
+					//MGstat.betaCut(mg.getStage());
 					if( !pos.isCaptureMoveOrPromotion(bestMove) && !inCheck )
 					{
 						saveKillers(ply,bestMove);

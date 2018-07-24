@@ -76,6 +76,7 @@ private:
 
 	};
 
+public:
 	enum eStagedGeneratorState
 	{
 		getTT,
@@ -83,9 +84,9 @@ private:
 		iterateGoodCaptureMoves,
 		getKillers,
 		getCounters,
+		iterateBadCaptureMoves,
 		generateQuietMoves,
 		iterateQuietMoves,
-		iterateBadCaptureMoves,
 		finishedNormalStage,
 
 		getTTevasion,
@@ -112,7 +113,12 @@ private:
 		iterateQuietChecks,
 		finishedQuiescentQuietStage,
 
-	}stagedGeneratorState;
+	};
+private:
+	eStagedGeneratorState stagedGeneratorState;
+public:
+	eStagedGeneratorState getStage(){ return stagedGeneratorState;};
+private:
 
 	template<Movegen::genType type>	void generateMoves();
 

@@ -804,7 +804,7 @@ Move Movegen::getNextMove()
 			}
 			else
 			{
-				return NOMOVE;
+				stagedGeneratorState = (eStagedGeneratorState)(stagedGeneratorState+1);
 			}
 			break;
 		case getKillers:
