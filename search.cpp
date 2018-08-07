@@ -297,7 +297,9 @@ startThinkResult Search::startThinking(int depth, Score alpha, Score beta)
 
 
 			globalReduction = 0;
-
+			unsigned int failHighCounter = 0u;
+			unsigned int failLowCounter = 0u;
+			
 			do
 			{
 
@@ -396,7 +398,14 @@ startThinkResult Search::startThinking(int depth, Score alpha, Score beta)
 
 						_UOI->printPV(res, depth, maxPlyReached, alpha, beta, elapsedTime, indexPV, newPV, getVisitedNodes());
 
-						alpha = (Score) std::max((signed long long int)(res) - delta, (signed long long int)-SCORE_INFINITE);
+						if( (++failLowCounter) > 3)
+						{
+							alpha = -SCORE_INFINITE;
+						}
+						else
+						{
+							alpha = (Score) std::max((signed long long int)(res) - delta, (signed long long int)-SCORE_INFINITE);
+						}
 
 						globalReduction = 0;
 						my_thread::timeMan.idLoopAlpha = true;
@@ -407,8 +416,16 @@ startThinkResult Search::startThinking(int depth, Score alpha, Score beta)
 					{
 
 						_UOI->printPV(res, depth, maxPlyReached, alpha, beta, elapsedTime, indexPV, newPV, getVisitedNodes());
-
-						beta = (Score) std::min((signed long long int)(res) + delta, (signed long long int)SCORE_INFINITE);
+						
+						if( (++failHighCounter) > 3)
+						{
+							beta = SCORE_INFINITE;
+						}
+						else
+						{
+							beta = (Score) std::min((signed long long int)(res) + delta, (signed long long int)SCORE_INFINITE);
+						}
+						
 						if(depth > 1)
 						{
 							globalReduction = 1;
