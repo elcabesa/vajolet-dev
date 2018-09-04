@@ -18,7 +18,7 @@
 #define POSITION_H_
 
 #include <unordered_map>
-#include <vector>
+#include <list>
 #include <map>
 #include "vajolet.h"
 #include "data.h"
@@ -127,12 +127,10 @@ public:
 	*/
 	Position()
 	{		
-		stateInfo2.clear();
-		stateInfo2.emplace_back(state());
-		actualState = &stateInfo2.back();
+		stateInfo.clear();
+		stateInfo.emplace_back(state());
 
-		
-		actualState->nextMove = whiteTurn;
+		stateInfo.back().nextMove = whiteTurn;
 		
 		Us=&bitBoard[ getNextTurn() ];
 		Them=&bitBoard[blackTurn - getNextTurn()];
@@ -141,8 +139,7 @@ public:
 
 	Position(const Position& other)// calls the copy constructor of the age
 	{
-		stateInfo2 = other.stateInfo2;
-		actualState = &stateInfo2.back();
+		stateInfo = other.stateInfo;
 
 		
 		
@@ -165,8 +162,7 @@ public:
 		if (this == &other)
 			return *this;
 
-		stateInfo2 = other.stateInfo2;
-		actualState = &stateInfo2.back();
+		stateInfo = other.stateInfo;
 		
 
 		for(int i = 0; i < squareNumber; i++)
@@ -242,9 +238,8 @@ private:
 
 	/*used for search*/
 	pawnTable pawnHashTable;
-	state* actualState;
 
-	std::vector<state> stateInfo2;
+	std::list<state> stateInfo;
 
 
 	/*! \brief board rapresentation
@@ -291,7 +286,7 @@ public:
 
 	unsigned int getStateSize() const
 	{
-		return stateInfo2.size();
+		return stateInfo.size();
 	}
 	//unsigned int getStateIndex(void)const { return 0;}
 
@@ -469,17 +464,19 @@ public:
 	*/
 	inline const state& getActualStateConst(void)const
 	{
-		return *actualState;
+		return *stateInfo.cend();
 	}
 	
 	inline state& getActualState(void)
 	{
-		return *actualState;
+		return *stateInfo.end();
 	}
 
 	inline const state& getState(unsigned int n)const
 	{
-		return stateInfo2[n];	
+		auto it = stateInfo.begin();
+		std::advance(it, n);
+		return *it;	
 	}
 
 private:
@@ -492,8 +489,7 @@ private:
 	*/
 	inline void insertState(state & s)
 	{
-		stateInfo2.emplace_back(s);
-		actualState = &stateInfo2.back();
+		stateInfo.emplace_back(s);
 	}
 
 	/*! \brief  remove the last state
@@ -504,8 +500,7 @@ private:
 	*/
 	inline void removeState()
 	{
-		stateInfo2.pop_back();
-		actualState = &stateInfo2.back();
+		stateInfo.pop_back();
 	}
 
 

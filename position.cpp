@@ -382,9 +382,8 @@ void Position::clear()
 	{
 		bitBoard[i] = 0;
 	}
-	stateInfo2.clear();
-	stateInfo2.emplace_back(state());
-	actualState = &stateInfo2.back();
+	stateInfo.clear();
+	stateInfo.emplace_back(state());
 
 }
 
@@ -1588,7 +1587,7 @@ bool Position::isDraw(bool isPVline) const
 	// Draw by repetition?
 	unsigned int counter=1;
 	U64 actualkey = getActualStateConst().key;
-	auto it = stateInfo2.rbegin();
+	auto it = stateInfo.rbegin();
 	
 
 	int e = std::min(getActualStateConst().fiftyMoveCnt, getActualStateConst().pliesFromNull);
