@@ -464,12 +464,12 @@ public:
 	*/
 	inline const state& getActualStateConst(void)const
 	{
-		return *stateInfo.cend();
+		return stateInfo.back();
 	}
 	
 	inline state& getActualState(void)
 	{
-		return *stateInfo.end();
+		return stateInfo.back();
 	}
 
 	inline const state& getState(unsigned int n)const
