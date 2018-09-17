@@ -489,7 +489,7 @@ startThinkResult Search::startThinking(int depth, Score alpha, Score beta, PVlin
 		t.join();
 	}
 	
-	tds.print();
+	//tds.print();
 	
 	//----------------------------------
 	// gather results
