@@ -18,6 +18,7 @@
 #include <random>
 #include <ctime>
 
+#include <mutex>
 #include <vector>
 #include <list>
 #include <map>
@@ -244,6 +245,7 @@ void Search::idLoop(rootMove& bestMove, int depth, Score alpha, Score beta , boo
 	
 	do
 	{
+		tds.add(depth);
 		_UOI->printDepth(depth);
 		//----------------------------
 		// iterative loop
@@ -380,9 +382,17 @@ void Search::idLoop(rootMove& bestMove, int depth, Score alpha, Score beta , boo
 			my_thread::timeMan.idLoopAlpha = false;
 			my_thread::timeMan.idLoopBeta = false;
 		}
+		
+		// update depth
+		++depth;
+		if( tds.get(depth) > 0.49 * threads)
+		{
+			++depth;
+		}
+		
 
 	}
-	while( ++depth <= (limits.depth != -1 ? limits.depth : 100) && !stop);
+	while( depth <= (limits.depth != -1 ? limits.depth : 100) && !stop);
 
 }
 
@@ -444,6 +454,7 @@ startThinkResult Search::startThinking(int depth, Score alpha, Score beta, PVlin
 	// multithread : lazy smp threads
 	//----------------------------
 
+	tds.reset();
 	
 	std::vector<std::thread> helperThread;
 	Move m(0);
@@ -477,6 +488,8 @@ startThinkResult Search::startThinking(int depth, Score alpha, Score beta, PVlin
 	{
 		t.join();
 	}
+	
+	tds.print();
 	
 	//----------------------------------
 	// gather results
@@ -1665,5 +1678,52 @@ template<Search::nodeType type> Score Search::qsearch(unsigned int ply, int dept
 	return bestScore;
 
 }
+
+ThreadsDeepthStatistics Search::tds;
+
+std::mutex ThreadsDeepthStatistics::mtx;
+void ThreadsDeepthStatistics::reset()
+{
+	std::unique_lock<std::mutex> lck (mtx);
+	stat.clear();
+}
+
+void ThreadsDeepthStatistics::add( unsigned int depth )
+{
+	std::unique_lock<std::mutex> lck (mtx);
+	int depthReached = stat.size();
+	int missingElements = depth - depthReached;
+	if( missingElements >= 0 )
+	{
+		for( int i = 0; i < missingElements; ++i)
+		{
+			stat.push_back(0);
+		}
+	}
+	stat[depth - 1] +=1;
+	
+}
+
+void ThreadsDeepthStatistics::print()
+{
+	std::unique_lock<std::mutex> lck (mtx);
+	sync_cout<<"thread searching:"<<sync_endl;
+	int i = 0;
+	for( auto x: stat )
+	{
+		++i;
+		sync_cout<<i<<" : "<<x<<sync_endl;
+	}
+}
+
+unsigned int ThreadsDeepthStatistics::get( unsigned int depth )
+{
+	std::unique_lock<std::mutex> lck (mtx);
+	unsigned int depthReached = stat.size();
+	if( depth > depthReached )
+		return 0;
+	return stat[depth - 1];
+}
+
 
 

@@ -17,6 +17,7 @@
 #ifndef SEARCH_H_
 #define SEARCH_H_
 
+#include <mutex>
 #include <chrono>
 #include <vector>
 #include <list>
@@ -28,6 +29,19 @@
 #include "history.h"
 #include "eval.h"
 #include "command.h"
+
+class ThreadsDeepthStatistics
+{
+	private:
+		static std::mutex mtx;
+		std::vector<unsigned int> stat;
+	public:
+		ThreadsDeepthStatistics(){}
+		void reset();
+		void add( unsigned int depth );
+		unsigned int get( unsigned int depth );
+		void print();
+};
 
 class PVline : private std::list<Move>
 {
@@ -148,6 +162,7 @@ class Search
 {
 private:
 	std::unique_ptr<UciOutput> _UOI;
+	static ThreadsDeepthStatistics tds;
 	
 	int globalReduction;
 	static const unsigned int LmrLimit = 32;
