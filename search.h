@@ -264,8 +264,8 @@ public:
 					
 					if( !improving )
 					{
-						if(    PVreduction[improving][d][mc] > int(ONE_PLY) ){    PVreduction[improving][d][mc] += int(ONE_PLY);}
-						if( nonPVreduction[improving][d][mc] > int(ONE_PLY) ){ nonPVreduction[improving][d][mc] += int(ONE_PLY);}
+						if(    PVreduction[improving][d][mc] > int(ONE_PLY) ){    PVreduction[improving][d][mc] += int(ONE_PLY)/2;}
+						if( nonPVreduction[improving][d][mc] > int(ONE_PLY) ){ nonPVreduction[improving][d][mc] += int(ONE_PLY)/2;}
 					}
 				}
 			}
