@@ -155,8 +155,8 @@ private:
 	static Score futility[8];
 	static Score futilityMargin[7];
 	static unsigned int FutilityMoveCounts[16];
-	static Score PVreduction[LmrLimit*ONE_PLY][64];
-	static Score nonPVreduction[LmrLimit*ONE_PLY][64];
+	static Score PVreduction[2][LmrLimit*ONE_PLY][64];
+	static Score nonPVreduction[2][LmrLimit*ONE_PLY][64];
 
 	static Score mateIn(int ply) { return SCORE_MATE - ply; }
 	static Score matedIn(int ply) { return SCORE_MATED + ply; }
@@ -251,14 +251,25 @@ public:
 
 	static void initLMRreduction(void)
 	{
-		for (unsigned int d = 1; d < LmrLimit*ONE_PLY; d++)
-			for (int mc = 1; mc < 64; mc++)
+		for (unsigned int improving = 0; improving < 2; ++improving)
+		{
+			for (unsigned int d = 1; d < LmrLimit*ONE_PLY; ++d)
 			{
-				double    PVRed = -1.5 + 0.33*log(double(d)) * log(double(mc));
-				double nonPVRed = -1.2 + 0.37*log(double(d)) * log(double(mc));
-				PVreduction[d][mc] = (Score)(PVRed >= 1.0 ? floor(PVRed * int(ONE_PLY)) : 0);
-				nonPVreduction[d][mc] = (Score)(nonPVRed >= 1.0 ? floor(nonPVRed * int(ONE_PLY)) : 0);
+				for (int mc = 1; mc < 64; ++mc)
+				{
+					double    PVRed = -1.5 + 0.33*log(double(d)) * log(double(mc));
+					double nonPVRed = -1.2 + 0.37*log(double(d)) * log(double(mc));
+					PVreduction[improving][d][mc] = (Score)(PVRed >= 1.0 ? floor(PVRed * int(ONE_PLY)) : 0);
+					nonPVreduction[improving][d][mc] = (Score)(nonPVRed >= 1.0 ? floor(nonPVRed * int(ONE_PLY)) : 0);
+					
+					if( !improving )
+					{
+						if(    PVreduction[improving][d][mc] > int(ONE_PLY) ){    PVreduction[improving][d][mc] += int(ONE_PLY);}
+						if( nonPVreduction[improving][d][mc] > int(ONE_PLY) ){ nonPVreduction[improving][d][mc] += int(ONE_PLY);}
+					}
+				}
 			}
+		}
 	};
 
 	void stopPonder(){ limits.ponder = false;}

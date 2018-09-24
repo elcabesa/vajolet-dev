@@ -47,8 +47,8 @@ std::vector<Move> Search::rootMoves;
 Score Search::futility[8] = {0,6000,12000,18000,24000,30000,36000,42000};
 Score Search::futilityMargin[7] = {0,10000,20000,30000,40000,50000,60000};
 unsigned int Search::FutilityMoveCounts[16] = {2,3,4,7,11,15,20,26,32,39,46,55,64,73,83,94};
-Score Search::PVreduction[LmrLimit*ONE_PLY][64];
-Score Search::nonPVreduction[LmrLimit*ONE_PLY][64];
+Score Search::PVreduction[2][LmrLimit*ONE_PLY][64];
+Score Search::nonPVreduction[2][LmrLimit*ONE_PLY][64];
 unsigned int Search::threads = 1;
 unsigned int Search::multiPVLines = 1;
 bool Search::useOwnBook = true;
@@ -1148,7 +1148,7 @@ template<Search::nodeType type> Score Search::alphaBeta(unsigned int ply, int de
 				{
 					assert(moveNumber!=0);
 
-					int reduction = PVreduction[ std::min(depth, int(LmrLimit*ONE_PLY-1)) ][ std::min(moveNumber, (unsigned int)63) ];
+					int reduction = PVreduction[improving][ std::min(depth, int(LmrLimit*ONE_PLY-1)) ][ std::min(moveNumber, (unsigned int)63) ];
 					int d = std::max(newDepth - reduction, ONE_PLY);
 
 					if(reduction != 0)
@@ -1202,7 +1202,7 @@ template<Search::nodeType type> Score Search::alphaBeta(unsigned int ply, int de
 				&& !mg.isKillerMove(m)
 			)
 			{
-				int reduction = nonPVreduction[std::min(depth, int(LmrLimit*ONE_PLY-1))][std::min(moveNumber, (unsigned int)63)];
+				int reduction = nonPVreduction[improving][std::min(depth, int(LmrLimit*ONE_PLY-1))][std::min(moveNumber, (unsigned int)63)];
 				int d = std::max(newDepth - reduction, ONE_PLY);
 
 				if(reduction != 0)
