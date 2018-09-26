@@ -772,7 +772,7 @@ template<Search::nodeType type> Score Search::alphaBeta(unsigned int ply, int de
 	
 	sd[ply].staticEval = staticEval;
 	
-	if( sd[ply].skipNullMove || ( ply >=2 && sd[ply].staticEval >= sd[ply-2].staticEval ) )
+	if( !inCheck && ( ply >=2 && sd[ply].staticEval >= sd[ply-2].staticEval ) )
 	{
 		improving = true;
 	}
