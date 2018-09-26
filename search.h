@@ -257,15 +257,15 @@ public:
 			{
 				for (int mc = 1; mc < 64; ++mc)
 				{
-					double    PVRed = -1.5 + 0.33*log(double(d)) * log(double(mc));
-					double nonPVRed = -1.2 + 0.37*log(double(d)) * log(double(mc));
+					double    PVRed = -2 + 0.33*log(double(d)) * log(double(mc));
+					double nonPVRed = -1.7 + 0.37*log(double(d)) * log(double(mc));
 					PVreduction[improving][d][mc] = (Score)(PVRed >= 1.0 ? floor(PVRed * int(ONE_PLY)) : 0);
 					nonPVreduction[improving][d][mc] = (Score)(nonPVRed >= 1.0 ? floor(nonPVRed * int(ONE_PLY)) : 0);
 					
 					if( !improving )
 					{
-						if(    PVreduction[improving][d][mc] > int(ONE_PLY) ){    PVreduction[improving][d][mc] += int(ONE_PLY)/2;}
-						if( nonPVreduction[improving][d][mc] > int(ONE_PLY) ){ nonPVreduction[improving][d][mc] += int(ONE_PLY)/2;}
+						if(    PVreduction[improving][d][mc] > int(ONE_PLY) ){    PVreduction[improving][d][mc] += int(ONE_PLY);}
+						if( nonPVreduction[improving][d][mc] > int(ONE_PLY) ){ nonPVreduction[improving][d][mc] += int(ONE_PLY);}
 					}
 				}
 			}
