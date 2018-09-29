@@ -385,7 +385,7 @@ void Search::idLoop(rootMove& bestMove, int depth, Score alpha, Score beta , boo
 		
 		// update depth
 		++depth;
-		if( !masterThread && tds.get(depth) > 0.49 * threads)
+		if( !masterThread && tds.get(depth) > 0.8 * threads)
 		{
 			++depth;
 		}
@@ -1716,13 +1716,20 @@ void ThreadsDeepthStatistics::print()
 	}
 }
 
-unsigned int ThreadsDeepthStatistics::get( unsigned int depth )
+double ThreadsDeepthStatistics::get( unsigned int depth )
 {
 	std::unique_lock<std::mutex> lck (mtx);
 	unsigned int depthReached = stat.size();
 	if( depth > depthReached )
+	{
 		return 0;
-	return stat[depth - 1];
+	}
+	unsigned int tot = 0;
+	for( unsigned int i = 0; i < depth; ++i )
+	{
+		tot += stat[i];
+	}
+	return double(tot)/depth;
 }
 
 

@@ -39,7 +39,7 @@ class ThreadsDeepthStatistics
 		ThreadsDeepthStatistics(){}
 		void reset();
 		void add( unsigned int depth );
-		unsigned int get( unsigned int depth );
+		double get( unsigned int depth );
 		void print();
 };
 
