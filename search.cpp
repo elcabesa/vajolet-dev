@@ -385,7 +385,7 @@ void Search::idLoop(rootMove& bestMove, int depth, Score alpha, Score beta , boo
 		
 		// update depth
 		++depth;
-		if( !masterThread && tds.get(depth) > 0.8 * threads)
+		if( !masterThread && tds.get(depth) > 3.0 * threads)
 		{
 			++depth;
 		}
