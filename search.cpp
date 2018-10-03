@@ -18,6 +18,7 @@
 #include <random>
 #include <ctime>
 
+#include <random>
 #include <mutex>
 #include <vector>
 #include <list>
@@ -385,7 +386,7 @@ void Search::idLoop(rootMove& bestMove, int depth, Score alpha, Score beta , boo
 		
 		// update depth
 		++depth;
-		if( !masterThread && tds.get(depth) > 3.0 * threads)
+		if( !masterThread && tds.skipDepth()/* && tds.get(depth) > 3.0 * threads*/)
 		{
 			++depth;
 		}
@@ -1732,5 +1733,23 @@ double ThreadsDeepthStatistics::get( unsigned int depth )
 	return double(tot)/depth;
 }
 
+
+bool ThreadsDeepthStatistics::skipDepth()
+{
+	unsigned int val = uint_dist(rnd);
+	//sync_cout<<"value:"<<val<<sync_endl;
+	if( val < 3 )
+	{
+		//sync_cout<<"return true"<<sync_endl;
+		return true;
+	}
+	//sync_cout<<"return false"<<sync_endl;
+	return false;
+}
+
+ThreadsDeepthStatistics::ThreadsDeepthStatistics()
+{
+	rnd.seed(19091979);
+}
 
 

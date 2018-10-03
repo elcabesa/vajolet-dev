@@ -35,12 +35,15 @@ class ThreadsDeepthStatistics
 	private:
 		static std::mutex mtx;
 		std::vector<unsigned int> stat;
+		std::mt19937_64 rnd;
+		std::uniform_int_distribution<unsigned int> uint_dist = std::uniform_int_distribution<unsigned int>(0,99);
 	public:
-		ThreadsDeepthStatistics(){}
+		ThreadsDeepthStatistics();
 		void reset();
 		void add( unsigned int depth );
 		double get( unsigned int depth );
 		void print();
+		bool skipDepth();
 };
 
 class PVline : private std::list<Move>
