@@ -30,6 +30,8 @@
 #include "history.h"
 #include "vajolet.h"
 
+class ThreadsDeepthStatistics;
+
 class PVline : private std::list<Move>
 {
 public:
@@ -153,6 +155,7 @@ private:
 	static const int ONE_PLY = 16;
 	static const int ONE_PLY_SHIFT = 4;
 	std::unique_ptr<UciOutput> _UOI;
+  static ThreadsDeepthStatistics tds;
 	
 	int globalReduction;
 	static const unsigned int LmrLimit = 32;
