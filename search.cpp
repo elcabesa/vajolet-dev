@@ -1788,7 +1788,7 @@ bool ThreadsDeepthStatistics::skipDepth()
 {
 	unsigned int val = uint_dist(rnd);
 	//sync_cout<<"value:"<<val<<sync_endl;
-	if( val < 25 )
+	if( val < 20 )
 	{
 		//sync_cout<<"return true"<<sync_endl;
 		return true;
