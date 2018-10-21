@@ -277,7 +277,7 @@ void Search::idLoop(rootMove& bestMove, int depth, Score alpha, Score beta , boo
 	
 	do
 	{
-    tds.add(depth);
+	tds.add(depth);
 		_UOI->printDepth(depth);
 		//----------------------------
 		// iterative loop
