@@ -1286,7 +1286,10 @@ template<Search::nodeType type> Score Search::alphaBeta(unsigned int ply, int de
 						}
 					}
 				}
-
+			}
+			else if( PVnode /*&& bestScore == alpha */)
+			{
+				pvLine.appendNewPvLine( m, childPV);
 			}
 		}
 		
@@ -1316,6 +1319,7 @@ template<Search::nodeType type> Score Search::alphaBeta(unsigned int ply, int de
 	{
 		if( excludedMove.packed)
 		{
+			assert( alpha < beta );
 			return alpha;
 		}
 		else if(!inCheck)
@@ -1329,7 +1333,10 @@ template<Search::nodeType type> Score Search::alphaBeta(unsigned int ply, int de
 	}
 
 	if (bestScore == -SCORE_INFINITE)
+	{
+		assert( alpha < beta );
 		bestScore = alpha;
+	}
 
 	if(!stop)
 	{
