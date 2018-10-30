@@ -938,7 +938,7 @@ template<Search::nodeType type> Score Search::alphaBeta(unsigned int ply, int de
 			&& abs(beta) < SCORE_MATE_IN_MAX_PLY
 		){
 			Score s;
-			Score rBeta = std::min(beta + 8000 - 1800 * improving, SCORE_INFINITE);
+			Score rBeta = std::min(beta + 8500 - 1800 * improving, SCORE_INFINITE);
 			int rDepth = depth -ONE_PLY- 3*ONE_PLY;
 
 			Movegen mg(pos, sd, ply, ttMove);
