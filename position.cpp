@@ -281,7 +281,7 @@ void Position::setupFromFen(const std::string& fenStr)
 		ply = std::max(2 * (ply - 1), (unsigned int)0) + int(x.nextMove == blackTurn);
 	}
 
-	x.pliesFromNull = 0;
+	//x.pliesFromNull = 0;
 	x.currentMove = Move::NOMOVE;
 	x.capturedPiece = empty;
 
@@ -755,8 +755,8 @@ void Position::doNullMove(void)
 		x.epSquare = squareNone;
 	}
 	x.key ^= HashKeys::side;
-	x.fiftyMoveCnt++;
-	x.pliesFromNull = 0;
+	x.fiftyMoveCnt = 0;
+	//x.pliesFromNull = 0;
 	x.nextMove = (eNextMove)(blackTurn-x.nextMove);
 
 
@@ -817,7 +817,7 @@ void Position::doMove(const Move & m){
 
 	// update counter
 	x.fiftyMoveCnt++;
-	x.pliesFromNull++;
+	//x.pliesFromNull++;
 
 	// reset ep square
 	if(x.epSquare!=squareNone)
@@ -1572,7 +1572,8 @@ bool Position::isDraw(bool isPVline) const
 	auto it = stateInfo.rbegin();
 	
 
-	int e = std::min(getActualStateConst().fiftyMoveCnt, getActualStateConst().pliesFromNull);
+	//int e = std::min(getActualStateConst().fiftyMoveCnt, getActualStateConst().pliesFromNull);
+	int e = getActualStateConst().fiftyMoveCnt;
 	if( e >= 4)
 	{
 		std::advance( it,2);

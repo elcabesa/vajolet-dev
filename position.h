@@ -83,8 +83,8 @@ public:
 		eCastle castleRights; /*!<  actual castle rights*/
 		tSquare epSquare;	/*!<  en passant square*/
 
-		unsigned int fiftyMoveCnt,	/*!<  50 move count used for draw rule*/
-			pliesFromNull;	/*!<  plies from null move*/
+		unsigned int fiftyMoveCnt;	/*!<  50 move count used for draw rule*/
+			//pliesFromNull;	/*!<  plies from null move*/
 		//	ply;			/*!<  ply from the start*/
 
 		bitboardIndex capturedPiece; /*!<  index of the captured piece for unmakeMove*/
