@@ -30,12 +30,12 @@ typedef int32_t Score;					/*!< score saved as a single signed int value*/
 //SCORE DEFINITION
 //---------------------------------------------
 
-const Score SCORE_NONE = 1700001;
-const Score SCORE_INFINITE = 1700000;
-const Score SCORE_MATE = 1699990;
+const Score SCORE_NONE = 600001;
+const Score SCORE_INFINITE = 600000;
+const Score SCORE_MATE = 599990;
 const Score SCORE_MATED = -SCORE_MATE;
-const Score SCORE_MATE_IN_MAX_PLY = 1690000;
-const Score SCORE_KNOWN_WIN = 1500000;
+const Score SCORE_MATE_IN_MAX_PLY = 590000;
+const Score SCORE_KNOWN_WIN = 500000;
 const Score SCORE_MATED_IN_MAX_PLY = -SCORE_MATE_IN_MAX_PLY;
 
 #endif
