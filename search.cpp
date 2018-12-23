@@ -1132,10 +1132,10 @@ template<Search::impl::nodeType type> Score Search::impl::alphaBeta(unsigned int
 
 				PVline childPV;
 				Score v = qsearch<CUT_NODE>(ply,0, alpha, alpha+1, childPV);
-				if (v <= alpha)
-				{
+				//if (v <= alpha)
+				//{
 					return v;
-				}
+				//}
 			}
 
 			//---------------------------
