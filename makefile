@@ -32,6 +32,7 @@ CPP_SRCS := \
 ./src/Move.cpp \
 ./src/movegen.cpp \
 ./src/movepicker.cpp \
+./src/multiPVmanager.cpp \
 ./src/parameters.cpp \
 ./src/perft.cpp \
 ./src/polyglotKey.cpp \
@@ -68,6 +69,7 @@ OBJS :=  \
 ./src/Move.o \
 ./src/movegen.o \
 ./src/movepicker.o \
+./src/multiPVmanager.o \
 ./src/parameters.o \
 ./src/perft.o \
 ./src/polyglotKey.o \
@@ -99,6 +101,7 @@ CPP_DEPS := \
 ./src/Move.d \
 ./src/movegen.d \
 ./src/movepicker.d \
+./src/multiPVmanager.d \
 ./src/parameters.d \
 ./src/perft.d \
 ./src/polyglotKey.d \

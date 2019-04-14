@@ -75,7 +75,7 @@ public:
 	//--------------------------------------------------------
 	// public methods
 	//--------------------------------------------------------
-	impl( SearchTimer& st, SearchLimits& sl, std::unique_ptr<UciOutput> UOI = UciOutput::create( ) ):_UOI(std::move(UOI)), _sl(sl), _st(st){}
+	impl( SearchTimer& st, SearchLimits& sl, std::unique_ptr<UciOutput> UOI = UciOutput::create() ):_UOI(std::move(UOI)), _multiPVmanager(MultiPVManager::create()), _sl(sl), _st(st){}
 
 	impl( const impl& other ) :_UOI(UciOutput::create()), _sl(other._sl), _st(other._st), _rootMovesToBeSearched(other._rootMovesToBeSearched){}
 	impl& operator=(const impl& other)
@@ -139,7 +139,7 @@ private:
 	unsigned long long _tbHits;
 	unsigned int _maxPlyReached;
 
-	MultiPVManager _multiPVmanager;
+	std::unique_ptr<MultiPVManager> _multiPVmanager;
 	Position _pos;
 
 	SearchLimits& _sl; // todo limits belong to threads
@@ -320,7 +320,7 @@ void Search::impl::cleanMemoryBeforeStartingNewSearch(void)
 	_sd.cleanData();
 	_visitedNodes = 0;
 	_tbHits = 0;
-	_multiPVmanager.clean();
+	_multiPVmanager->clean();
 	_rootMovesAlreadySearched.clear();
 }
 
@@ -488,7 +488,7 @@ rootMove Search::impl::aspirationWindow( const int depth, Score alpha, Score bet
 
 			if (res <= alpha)
 			{
-				if( uciParameters::multiPVLines == 1 )
+				if(uciParameters::multiPVLines == 1 && _multiPVmanager->getPVNumber() == 0)
 				{
 					_UOI->printPV(res, _maxPlyReached, elapsedTime, newPV, getVisitedNodes(), UciOutput::upperbound);
 				}
@@ -503,7 +503,7 @@ rootMove Search::impl::aspirationWindow( const int depth, Score alpha, Score bet
 			}
 			else if (res >= beta)
 			{
-				if( uciParameters::multiPVLines == 1 )
+				if(uciParameters::multiPVLines == 1 && _multiPVmanager->getPVNumber() == 0)
 				{
 					_UOI->printPV(res, _maxPlyReached, elapsedTime, newPV, getVisitedNodes(), UciOutput::lowerbound);
 				}
@@ -590,8 +590,12 @@ void Search::impl::idLoop(std::vector<rootMove>& temporaryResults, unsigned int 
 	
 	my_thread &thr = my_thread::getInstance();
 	// manage multi PV moves
-	_multiPVmanager.setLinesToBeSearched( std::min( uciParameters::multiPVLines, (unsigned int)_rootMovesToBeSearched.size()) );
-
+	if (uciParameters::multiPVLines == 1) {
+		_multiPVmanager->setLinesToBeSearched(std::min(2u, (unsigned int)_rootMovesToBeSearched.size()));
+	} else {
+		_multiPVmanager->setLinesToBeSearched(std::min(uciParameters::multiPVLines, (unsigned int)_rootMovesToBeSearched.size()));
+	}
+	
 	// ramdomly initialize the bestmove
 	bestMove = rootMove(_rootMovesToBeSearched[0]);
 	
@@ -613,13 +617,13 @@ void Search::impl::idLoop(std::vector<rootMove>& temporaryResults, unsigned int 
 		//----------------------------------
 		// multi PV loop
 		//----------------------------------
-		for ( _multiPVmanager.startNewIteration(); _multiPVmanager.thereArePvToBeSearched(); _multiPVmanager.goToNextPV() )
+		for ( _multiPVmanager->startNewIteration(); _multiPVmanager->thereArePvToBeSearched(); _multiPVmanager->goToNextPV() )
 		{
-			_UOI->setPVlineIndex(_multiPVmanager.getPVNumber());
+			_UOI->setPVlineIndex(_multiPVmanager->getPVNumber());
 			//----------------------------------
 			// reload PV
 			//----------------------------------
-			if( rootMove rm(Move::NOMOVE); _multiPVmanager.getNextRootMove(rm) )
+			if( rootMove rm(Move::NOMOVE); _multiPVmanager->getNextRootMove(rm) )
 			{
 				_expectedValue = rm.score;
 				_pvLineFollower.setPVline(rm.PV);
@@ -633,23 +637,32 @@ void Search::impl::idLoop(std::vector<rootMove>& temporaryResults, unsigned int 
 			//----------------------------------
 			// aspiration window
 			//----------------------------------
-			rootMove res = aspirationWindow( depth, alpha, beta, masterThread);
+			int d = depth;
+			if (uciParameters::multiPVLines == 1 && _multiPVmanager->getPVNumber() != 0) {
+				d = std::max(depth - 10, 1);
+			}
+			rootMove res = aspirationWindow(d, alpha, beta, masterThread);
+			
 			if( res.firstMove != Move::NOMOVE )
 			{
 				bestMove = res;
-				_multiPVmanager.insertMove(bestMove);
+				_multiPVmanager->insertMove(bestMove);
 				_rootMovesAlreadySearched.push_back(bestMove.firstMove);
 			}
 
 			// at depth 1 only print the PV at the end of search
 			if(!_stop && depth == 1)
 			{
-				_UOI->printPV(res.score, _maxPlyReached, _st.getElapsedTime(), res.PV, getVisitedNodes(), UciOutput::upperbound);
+				if(uciParameters::multiPVLines == 1 && _multiPVmanager->getPVNumber() == 0)
+				{
+					_UOI->printPV(res.score, _maxPlyReached, _st.getElapsedTime(), res.PV, getVisitedNodes(), UciOutput::upperbound);
+				}
 			}
 			if(!_stop && uciParameters::multiPVLines > 1)
 			{
-				auto mpRes = _multiPVmanager.get();
+				auto mpRes = _multiPVmanager->get();
 				bestMove = mpRes[0];
+				
 				_UOI->printPVs(mpRes);
 			}
 		}
@@ -687,7 +700,11 @@ SearchResult Search::impl::startThinking(int depth, Score alpha, Score beta, PVl
 		filterRootMovesByTablebase( _rootMovesToBeSearched );
 	}
 	
-
+	if(uciParameters::multiPVLines == 1) {
+		_multiPVmanager = MultiPVManager::create(MultiPVManager::standardSearch);
+	} else {
+		_multiPVmanager = MultiPVManager::create(MultiPVManager::multiPv);
+	}
 	// setup main thread
 	cleanMemoryBeforeStartingNewSearch();
 
@@ -1401,7 +1418,9 @@ template<Search::impl::nodeType type> Score Search::impl::alphaBeta(unsigned int
 				!_stop
 				)
 			{
-				_UOI->printCurrMoveNumber(moveNumber, m, getVisitedNodes(), elapsed);
+				if(uciParameters::multiPVLines != 1 || _multiPVmanager->getPVNumber() == 0) {
+					_UOI->printCurrMoveNumber(moveNumber, m, getVisitedNodes(), elapsed);
+				}
 			}
 		}
 
@@ -1551,7 +1570,9 @@ template<Search::impl::nodeType type> Score Search::impl::alphaBeta(unsigned int
 					{
 						if(val < beta && depth > 1 * ONE_PLY)
 						{
-							_UOI->printPV(val, _maxPlyReached, _st.getElapsedTime(), pvLine, getVisitedNodes());
+							if (uciParameters::multiPVLines == 1 && _multiPVmanager->getPVNumber() == 0) {
+								_UOI->printPV(val, _maxPlyReached, _st.getElapsedTime(), pvLine, getVisitedNodes());
+							}
 						}
 						if(val > _expectedValue - 800)
 						{
