@@ -645,7 +645,9 @@ void Search::impl::idLoop(std::vector<rootMove>& temporaryResults, unsigned int 
 			
 			if( res.firstMove != Move::NOMOVE )
 			{
-				bestMove = res;
+				if (_multiPVmanager->getPVNumber() == 0) {
+					bestMove = res;
+				}
 				_multiPVmanager->insertMove(bestMove);
 				_rootMovesAlreadySearched.push_back(bestMove.firstMove);
 			}
