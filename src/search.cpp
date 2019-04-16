@@ -659,8 +659,8 @@ void Search::impl::idLoop(std::vector<rootMove>& temporaryResults, unsigned int 
 				if (_multiPVmanager->getPVNumber() == 0) {
 					bestMove = res;
 				}
-				_multiPVmanager->insertMove(bestMove);
-				_rootMovesAlreadySearched.push_back(bestMove.firstMove);
+				_multiPVmanager->insertMove(res);
+				_rootMovesAlreadySearched.push_back(res.firstMove);
 			}
 
 			// at depth 1 only print the PV at the end of search
