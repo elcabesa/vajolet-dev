@@ -46,6 +46,11 @@ void timeManagement::notifyFailOver()
 	_idLoopFailOver = true;	
 }
 
+void timeManagement::notifyRootMoves(std::vector<rootMove> rm)
+{
+	_rm = rm;
+}
+
 inline void timeManagement::_clearIdLoopIterationFinished()
 {
 	_idLoopIterationFinished = false;
@@ -190,6 +195,14 @@ bool timeManagement::stateMachineStep( const long long int time, const unsigned 
 		{
 			_searchState = searchFinished;
 			stopSearch = true;
+		}
+		else if (_isIdLoopIterationFinished() && time >= _minSearchTime) {
+			// easy move detection
+			assert(_rm.size()>=2);
+			if (_rm[0].depth > 15 && _rm[1].score + 20000 < _rm[0].score) {
+				_searchState = searchFinished;
+				stopSearch = true;
+			}
 		}
 		else if( time >= _allocatedTime )
 		{

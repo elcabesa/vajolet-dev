@@ -104,6 +104,7 @@ public:
 	virtual void printGeneralInfo( const unsigned int fullness, const unsigned long long int thbits, const unsigned long long int nodes, const long long int time) const = 0;
 	
 protected:
+	//todo investigate if this info can be removed from here... now it log 0
 	unsigned int _depth;
 	unsigned int _PVlineIndex;
 

@@ -601,6 +601,9 @@ void Search::impl::idLoop(std::vector<rootMove>& temporaryResults, unsigned int 
 	
 	do
 	{
+		if( masterThread ) {
+			setUOI(UciOutput::create(UciOutput::standard));
+		}
 		_UOI->setDepth(depth);
 		_UOI->printDepth();
 
@@ -614,20 +617,23 @@ void Search::impl::idLoop(std::vector<rootMove>& temporaryResults, unsigned int 
 		//----------------------------
 		_rootMovesAlreadySearched.clear();
 		
+		std::vector<rootMove> mpRes;
 		//----------------------------------
 		// multi PV loop
 		//----------------------------------
 		for ( _multiPVmanager->startNewIteration(); _multiPVmanager->thereArePvToBeSearched(); _multiPVmanager->goToNextPV() )
 		{
-			if (uciParameters::multiPVLines == 1) {
-				if (_multiPVmanager->getPVNumber() == 0) {
+			if( masterThread ) {
+				if (uciParameters::multiPVLines == 1) {
+					if (_multiPVmanager->getPVNumber() == 0) {
+						setUOI(UciOutput::create(UciOutput::standard));
+					}
+					else {
+						setUOI(UciOutput::create(UciOutput::mute));
+					}
+				} else {
 					setUOI(UciOutput::create(UciOutput::standard));
 				}
-				else {
-					setUOI(UciOutput::create(UciOutput::mute));
-				}
-			} else {
-				setUOI(UciOutput::create(UciOutput::standard));
 			}
 			
 			_UOI->setPVlineIndex(_multiPVmanager->getPVNumber());
@@ -668,9 +674,12 @@ void Search::impl::idLoop(std::vector<rootMove>& temporaryResults, unsigned int 
 			{
 				_UOI->printPV(res.score, _maxPlyReached, _st.getElapsedTime(), res.PV, getVisitedNodes(), UciOutput::upperbound);
 			}
+			
+			mpRes.clear();
+			mpRes = _multiPVmanager->get();
+			
 			if(!_stop && uciParameters::multiPVLines > 1)
 			{
-				auto mpRes = _multiPVmanager->get();
 				bestMove = mpRes[0];
 				_UOI->printPVs(mpRes);
 			}
@@ -678,12 +687,15 @@ void Search::impl::idLoop(std::vector<rootMove>& temporaryResults, unsigned int 
 
 		if( masterThread )
 		{
+			thr.getTimeMan().notifyRootMoves(mpRes);
 			thr.getTimeMan().notifyIterationHasBeenFinished();
 		}
 	}
 	while( ++depth <= (_sl.isDepthLimitedSearch() ? _sl.getDepth() : 100) && !_stop);
 
-	setUOI(UciOutput::create(UciOutput::standard));
+	if( masterThread ) {
+		setUOI(UciOutput::create(UciOutput::standard));
+	}
 
 }
 

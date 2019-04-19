@@ -18,7 +18,10 @@
 #ifndef TIME_MANAGEMENT_H_
 #define TIME_MANAGEMENT_H_
 
+#include <vector>
+
 #include "position.h"
+#include "rootMove.h"
 #include "searchLimits.h"
 
 class timeManagement
@@ -42,6 +45,7 @@ public:
 	void notifyFailLow();
 	void notifyFailOver();
 	void stop();
+	void notifyRootMoves(std::vector<rootMove>);
 
 	unsigned int getResolution() const;
 	bool isSearchFinished() const;
@@ -71,6 +75,7 @@ private:
 
 	searchState _searchState;
 	const SearchLimits& _limits;
+	std::vector<rootMove> _rm;
 
 };
 
