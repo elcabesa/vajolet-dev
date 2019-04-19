@@ -490,7 +490,7 @@ rootMove Search::impl::aspirationWindow( const int depth, Score alpha, Score bet
 			{
 				if(uciParameters::multiPVLines == 1)
 				{
-					_UOI->printPV(res, _maxPlyReached, elapsedTime, newPV, getVisitedNodes(), UciOutput::upperbound);
+					_UOI->printPV(res, _maxPlyReached, elapsedTime, newPV, getVisitedNodes(), UciOutput::upperbound, depth, _multiPVmanager->getPVNumber());
 				}
 
 				alpha = (Score) std::max((signed long long int)(res) - delta, (signed long long int)-SCORE_INFINITE);
@@ -505,7 +505,7 @@ rootMove Search::impl::aspirationWindow( const int depth, Score alpha, Score bet
 			{
 				if(uciParameters::multiPVLines == 1)
 				{
-					_UOI->printPV(res, _maxPlyReached, elapsedTime, newPV, getVisitedNodes(), UciOutput::lowerbound);
+					_UOI->printPV(res, _maxPlyReached, elapsedTime, newPV, getVisitedNodes(), UciOutput::lowerbound, depth, _multiPVmanager->getPVNumber());
 				}
 
 				beta = (Score) std::min((signed long long int)(res) + delta, (signed long long int)SCORE_INFINITE);
@@ -604,8 +604,7 @@ void Search::impl::idLoop(std::vector<rootMove>& temporaryResults, unsigned int 
 		if( masterThread ) {
 			setUOI(UciOutput::create(UciOutput::standard));
 		}
-		_UOI->setDepth(depth);
-		_UOI->printDepth();
+		_UOI->printDepth(depth);
 
 		//----------------------------
 		// exclude root moves in multithread search
@@ -635,8 +634,6 @@ void Search::impl::idLoop(std::vector<rootMove>& temporaryResults, unsigned int 
 					setUOI(UciOutput::create(UciOutput::standard));
 				}
 			}
-			
-			_UOI->setPVlineIndex(_multiPVmanager->getPVNumber());
 			//----------------------------------
 			// reload PV
 			//----------------------------------
@@ -672,7 +669,7 @@ void Search::impl::idLoop(std::vector<rootMove>& temporaryResults, unsigned int 
 			// at depth 1 only print the PV at the end of search
 			if(!_stop && depth == 1)
 			{
-				_UOI->printPV(res.score, _maxPlyReached, _st.getElapsedTime(), res.PV, getVisitedNodes(), UciOutput::upperbound);
+				_UOI->printPV(res.score, _maxPlyReached, _st.getElapsedTime(), res.PV, getVisitedNodes(), UciOutput::upperbound, d, _multiPVmanager->getPVNumber());
 			}
 			
 			mpRes.clear();
@@ -1591,7 +1588,7 @@ template<Search::impl::nodeType type> Score Search::impl::alphaBeta(unsigned int
 					{
 						if(val < beta && depth > 1 * ONE_PLY)
 						{
-							_UOI->printPV(val, _maxPlyReached, _st.getElapsedTime(), pvLine, getVisitedNodes());
+							_UOI->printPV(val, _maxPlyReached, _st.getElapsedTime(), pvLine, getVisitedNodes(), UciOutput::normal, depth / ONE_PLY , _multiPVmanager->getPVNumber());
 						}
 						if(val > _expectedValue - 800)
 						{
