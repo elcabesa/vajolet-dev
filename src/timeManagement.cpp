@@ -185,7 +185,7 @@ bool timeManagement::stateMachineStep( const long long int time, const unsigned 
 		//sync_cout<<"standardSearch"<<sync_endl;
 		if(
 				_stop
-				|| ( _isIdLoopIterationFinished() && time >= _minSearchTime && time >= _allocatedTime * 0.7 )
+				//|| ( _isIdLoopIterationFinished() && time >= _minSearchTime && time >= _allocatedTime * 0.7 )
 		)
 		{
 			_searchState = searchFinished;
@@ -193,11 +193,11 @@ bool timeManagement::stateMachineStep( const long long int time, const unsigned 
 		}
 		else if( time >= _allocatedTime )
 		{
-			if( _isSearchInFailLowOverState() )
+			/*if( _isSearchInFailLowOverState() )
 			{
 				_searchState = standardSearchExtendedTime;
 			}
-			else if( _hasFirstIterationFinished() )
+			else if( _hasFirstIterationFinished() )*/
 			{
 				_searchState = searchFinished;
 				stopSearch = true;
